@@ -28,7 +28,7 @@ int getchar_blocking(void)
 
 int main(void)
 {
-	printf("Learn pi!\n\n");
+	printf("\033[2JLearn pi!\n\n");
 	
 	int max_digits = strlen(pi_digits);
 	
@@ -70,7 +70,20 @@ int main(void)
 		}
 		
 		if (victory)
-			printf("\nWin! You got 100 digits.");
+			printf("\nWin! You got 100 digits.\n\n");
+		
+		printf("Press return key to retry.");
+		while (1) {
+			char c = getchar_blocking();
+			if (c == 27) {
+				printf("\n");
+				return 0;
+			} else if (c == '\n') {
+				break;
+			}
+		}	
+			
+		printf("\n\033[2J");
 	}
 	
 	return 0;
