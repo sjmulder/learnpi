@@ -1,3 +1,10 @@
+/* I, the copyright holder of this work, hereby release it into the public
+   domain. This applies worldwide.
+
+   In case this is not legally possible: I grant anyone the right to use this
+   work for any purpose, without any conditions, unless such conditions are
+   required by law. */
+
 #include <stdio.h>
 #include <termios.h>
 #include <string.h>
@@ -39,7 +46,8 @@ int main(void)
 			}
 
 			if (answer == '\n') {
-				printf("\nNext digit would have been %c. You got %i %s right.\n\n", digit, pos, pos == 1 ? "digit" : "digits");
+				printf("\nNext digit would have been %c. You got %i %s right.\n\n",
+				       digit, pos, pos == 1 ? "digit" : "digits");
 				
 				victory = 0;
 				break;
@@ -53,7 +61,8 @@ int main(void)
 			if (answer == '\r') {
 				break;
 			} else if (answer != digit) {
-				printf("\nSorry, next digit is %c, not %c. You got %i %s right.\n\n", digit, answer, pos, pos == 1 ? "digit" : "digits");
+				printf("\nSorry, next digit is %c, not %c. You got %i %s right.\n\n",
+				       digit, answer, pos, pos == 1 ? "digit" : "digits");
 				
 				victory = 0;
 				break;
