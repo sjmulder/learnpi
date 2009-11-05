@@ -58,7 +58,7 @@ int main(void)
 						       "You got %i %s right.\n\n",
 					           digit, pos, pos == 1 ? "digit" : "digits");
 					} else {
-						float dps = (float)taken / pos;
+						float dps = (float)pos / taken;		
 						printf("\n\nThe next digit is %c.\n"
 						       "You got %i %s right in %lus (%.2f p/s).\n\n",
 					           dps, digit, pos, pos == 1 ? "digit" : "digits", taken);
@@ -86,7 +86,7 @@ int main(void)
 					       "You got %i %s right.\n\n",
 					       answer, digit, pos, pos == 1 ? "digit" : "digits");
 				} else {
-					float dps = (float)taken / pos;		
+					float dps = (float)pos / taken;		
 					printf("\n\nThe next digit is not %c but %c.\n"
 					       "You got %i %s right in %lus (%.2f p/s).\n\n",
 					       answer, digit, pos, pos == 1 ? "digit" : "digits", taken, dps);
@@ -99,7 +99,7 @@ int main(void)
 		
 		if (victory) {
 			time_t taken = time(NULL) - start_time;
-			float dps = (float)taken / max_digits;		
+			float dps = (float)max_digits / taken;		
 			printf("\n\nWin! You got 100 digits right in %lus (%.2f p/s).\n\n", taken, dps);
 		}
 		

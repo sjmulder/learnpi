@@ -2,10 +2,10 @@ Here is a pi game:
 
     Learn pi!
     
-    > 3.141591
+    > 3.141592653589793238466
     
-    The next digit is not 1 but 2.
-    You got 5 digits right in 4s (0.80 p/s).
+    The next digit is not 6 but 2.
+    You got 20 digits right in 3s (6.67 p/s).
     
     Press return key to retry.
 
