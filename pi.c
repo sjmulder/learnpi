@@ -185,6 +185,10 @@ void print_digit_result(ReadDigitResult result, time_t start_time)
 			       result.given_answer);
 			print_score(result.pos, taken);
 			break;
+			
+		default:
+			// do nothing
+			break;
 	}
 }
 
@@ -241,6 +245,10 @@ int main(void)
 
 				case ReadDigitQuit:
 					return 0;
+
+				default:
+					// do nothing
+					break;
 			}
 			
 			if (exit_loop)
