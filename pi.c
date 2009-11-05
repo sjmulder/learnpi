@@ -6,13 +6,24 @@
    required by law. */
 
 #include <stdio.h>
-#include <termios.h>
 #include <string.h>
 #include <time.h>
 
-const char *pi_digits = 
-"14159265358979323846264338327950288419716939937510"
-"58209749445923078164062862089986280348253421170679";
+#if defined(_WIN32)
+
+#include <conio.h>
+#include <stdlib.h>
+
+#define getchar_blocking getch
+
+void clear_screen(void)
+{
+	system("cls");
+}
+
+#else
+
+#include <termios.h>
 
 int getchar_blocking(void)
 {
@@ -29,9 +40,26 @@ int getchar_blocking(void)
 	return ch;
 }
 
+void clear_screen(void)
+{
+	printf("\033[2J");
+}
+
+#endif
+
+const char *pi_digits = 
+"14159265358979323846264338327950288419716939937510"
+"58209749445923078164062862089986280348253421170679";
+
+int is_return(char c)
+{
+	return c == '\n' || c == '\r';
+}
+
 int main(void)
 {
-	printf("\033[2JLearn pi!\n\n");
+	clear_screen();
+	printf("Learn pi!\n\n");
 	
 	int max_digits = strlen(pi_digits);
 	
@@ -50,7 +78,7 @@ int main(void)
 				return 0;
 			}
 
-			if (answer == '\n') {
+			if (is_return(answer)) {
 				if (pos > 0) {
 					time_t taken = time(NULL) - start_time;
 					if (taken == 0) {
@@ -61,7 +89,8 @@ int main(void)
 						float dps = (float)pos / taken;		
 						printf("\n\nThe next digit is %c.\n"
 						       "You got %i %s right in %lus (%.2f p/s).\n\n",
-					           dps, digit, pos, pos == 1 ? "digit" : "digits", taken);
+					           digit, pos, pos == 1 ? "digit" : "digits",
+							   (unsigned long)taken, dps);
 					}					
 				} else {
 					printf("\nThe first digit is %c.\n\n", digit);
@@ -86,12 +115,13 @@ int main(void)
 					       "You got %i %s right.\n\n",
 					       answer, digit, pos, pos == 1 ? "digit" : "digits");
 				} else {
-					float dps = (float)pos / taken;		
+					float dps = (float)pos / taken;
 					printf("\n\nThe next digit is not %c but %c.\n"
 					       "You got %i %s right in %lus (%.2f p/s).\n\n",
-					       answer, digit, pos, pos == 1 ? "digit" : "digits", taken, dps);
+					       answer, digit, pos, pos == 1 ? "digit" : "digits",
+						   (unsigned long)taken, dps);
 				}
-				
+				 
 				victory = 0;
 				break;
 			}
@@ -100,7 +130,8 @@ int main(void)
 		if (victory) {
 			time_t taken = time(NULL) - start_time;
 			float dps = (float)max_digits / taken;		
-			printf("\n\nWin! You got 100 digits right in %lus (%.2f p/s).\n\n", taken, dps);
+			printf("\n\nWin! You got 100 digits right in %lus (%.2f p/s).\n\n",
+			       (unsigned long)taken, dps);
 		}
 		
 		printf("Press return key to retry.");
@@ -109,12 +140,13 @@ int main(void)
 			if (c == 27) {
 				printf("\n");
 				return 0;
-			} else if (c == '\n') {
+			} else if (is_return(c)) {
 				break;
 			}
 		}	
 			
-		printf("\n\033[2J");
+		printf("\n");
+		clear_screen();
 	}
 	
 	return 0;
