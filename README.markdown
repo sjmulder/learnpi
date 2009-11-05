@@ -3,7 +3,9 @@ Here is a pi game:
     Learn pi!
     
     > 3.141591
-    Sorry, next digit is 2, not 1. You got 5 digits right.
+    
+    The next digit is not 1 but 2.
+    You got 5 digits right in 4s (0.80 p/s).
     
     Press return key to retry.
 
