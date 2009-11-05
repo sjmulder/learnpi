@@ -15,7 +15,8 @@
 #include <conio.h>
 #include <stdlib.h>
 
-#define getchar_blocking getch
+#define getchar_blocking (getch)
+#define fmax(a, b) ((float)(a) > (float)(b) ? (float)(a) : (float)(b))
 
 void clear_screen(void)
 {
@@ -137,7 +138,7 @@ ReadDigitResult read_digit(int pos)
 	return result;
 }
 
-float calculate_score(int num_correct, time_t time_taken)
+int calculate_score(int num_correct, time_t time_taken)
 {
 	float dps = (float)num_correct / fmax(1, (float)time_taken);
 	float fscore = num_correct * POINTS_PER_DIGITS + dps * POINTS_PER_DPS;
