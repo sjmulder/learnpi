@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <termios.h>
 #include <string.h>
+#include <time.h>
 
 const char *pi_digits = 
 "14159265358979323846264338327950288419716939937510"
@@ -37,7 +38,9 @@ int main(void)
 	while (1) {
 		printf("> 3.");
 		
-		int victory = 1;		
+		int victory = 1;
+		time_t start_time = 0;
+				
 		for (int pos = 0; pos < max_digits; pos++) {
 			char digit = pi_digits[pos];
 			char answer = getchar_blocking();
@@ -48,8 +51,21 @@ int main(void)
 			}
 
 			if (answer == '\n') {
-				printf("\nNext digit would have been %c. You got %i %s right.\n\n",
-				       digit, pos, pos == 1 ? "digit" : "digits");
+				if (pos > 0) {
+					time_t taken = time(NULL) - start_time;
+					if (taken == 0) {
+						printf("\n\nThe next digit is %c.\n"
+						       "You got %i %s right.\n\n",
+					           digit, pos, pos == 1 ? "digit" : "digits");
+					} else {
+						float dps = (float)taken / pos;
+						printf("\n\nThe next digit is %c.\n"
+						       "You got %i %s right in %lus (%.2f p/s).\n\n",
+					           dps, digit, pos, pos == 1 ? "digit" : "digits", taken);
+					}					
+				} else {
+					printf("\nThe first digit is %c.\n\n", digit);
+				}
 				
 				victory = 0;
 				break;
@@ -57,20 +73,35 @@ int main(void)
 			
 			if (answer < '0' || answer > '9')
 				continue;
+
+			if (pos == 0)
+				start_time = time(NULL);
 			
 			putchar(answer);
 			
 			if (answer != digit) {
-				printf("\nSorry, next digit is %c, not %c. You got %i %s right.\n\n",
-				       digit, answer, pos, pos == 1 ? "digit" : "digits");
+				time_t taken = time(NULL) - start_time;
+				if (taken == 0) {
+					printf("\n\nThe next digit is not %c but %c.\n"
+					       "You got %i %s right.\n\n",
+					       answer, digit, pos, pos == 1 ? "digit" : "digits");
+				} else {
+					float dps = (float)taken / pos;		
+					printf("\n\nThe next digit is not %c but %c.\n"
+					       "You got %i %s right in %lus (%.2f p/s).\n\n",
+					       answer, digit, pos, pos == 1 ? "digit" : "digits", taken, dps);
+				}
 				
 				victory = 0;
 				break;
 			}
 		}
 		
-		if (victory)
-			printf("\nWin! You got 100 digits.\n\n");
+		if (victory) {
+			time_t taken = time(NULL) - start_time;
+			float dps = (float)taken / max_digits;		
+			printf("\n\nWin! You got 100 digits right in %lus (%.2f p/s).\n\n", taken, dps);
+		}
 		
 		printf("Press return key to retry.");
 		while (1) {
