@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <math.h>
 
 #if defined(_WIN32)
 
@@ -47,105 +48,211 @@ void clear_screen(void)
 
 #endif
 
-const char *pi_digits = 
+const char *PI_DIGITS = 
 "14159265358979323846264338327950288419716939937510"
 "58209749445923078164062862089986280348253421170679";
 
-int is_return(char c)
+const int PI_DIGIT_COUNT = (100);
+const int ESCAPE_KEYCODE = (27);
+const float POINTS_PER_DIGITS = 10.0f; // points for every digit
+const float POINTS_PER_DPS = 10.0f;    // for every digit per second
+
+#ifndef TRUE
+const int TRUE = 1;
+#endif
+#ifndef FALSE
+const int FALSE = 0;
+#endif
+#ifndef BOOL
+typedef int BOOL;
+#endif
+
+BOOL is_return(char c)
 {
 	return c == '\n' || c == '\r';
+}
+
+BOOL is_digit(char c)
+{
+	return '0' <= c && c <= '9';
+}
+
+void print_welcome()
+{
+	printf("Learn pi!\n\n");
+}
+
+void print_prompt()
+{
+	printf("> 3.");
+}
+
+typedef enum 
+{
+	ReadDigitCorrect,
+	ReadDigitIncorrect,
+	ReadDigitCancel,
+	ReadDigitQuit
+} ReadDigitResultType;
+
+typedef enum
+{
+	PromptContinue,
+	PromptQuit
+} PromptContinueResult;
+
+typedef struct 
+{
+	ReadDigitResultType type;
+	int pos;
+	char correct_answer;
+	char given_answer;
+} ReadDigitResult;
+
+ReadDigitResult read_digit(int pos)
+{
+	ReadDigitResult result;
+	result.pos = pos;
+	result.correct_answer = PI_DIGITS[pos];
+	result.given_answer = getchar_blocking();
+	
+	if (result.given_answer == ESCAPE_KEYCODE) {
+		result.type = ReadDigitQuit;
+		return result;
+	}
+
+	if (is_return(result.given_answer)) {
+		result.type = ReadDigitCancel;
+		return result;
+	}
+	
+	if (!is_digit(result.given_answer))
+		return read_digit(result.pos);
+
+	putchar(result.given_answer);
+	
+	BOOL correct = result.correct_answer == result.given_answer;
+	result.type = correct ? ReadDigitCorrect : ReadDigitIncorrect;
+	
+	return result;
+}
+
+float calculate_score(int num_correct, time_t time_taken)
+{
+	float dps = (float)num_correct / fmax(1, (float)time_taken);
+	float fscore = num_correct * POINTS_PER_DIGITS + dps * POINTS_PER_DPS;
+	
+	return (int)fscore;
+}
+
+void print_score(int num_correct, time_t time_taken)
+{
+	if (time_taken == 0) {
+		printf("You got %i %s right.\n", 
+			num_correct, num_correct == 1 ? "digit" : "digits");
+	} else {
+		float dps = (float)num_correct / time_taken;
+		printf("You got %i %s right in %lus (%.2f p/s).\n",
+	           num_correct, num_correct == 1 ? "digit" : "digits",
+			   (unsigned long)time_taken, dps);
+	}
+	
+	int score = calculate_score(num_correct, time_taken);
+	printf("\nYour score: %i\n\n", score);
+}
+
+void print_digit_result(ReadDigitResult result, time_t start_time)
+{
+	time_t taken = time(NULL) - start_time;
+	
+	switch (result.type) {
+		case ReadDigitQuit:
+			printf("\n");
+			break;
+			
+		case ReadDigitCancel:
+			if (result.pos > 0) {
+				printf("\n\nThe next digit is %c.\n", result.correct_answer);
+				print_score(result.pos, taken);
+			} else {	
+				printf("\n\nThe first digit is %c.\n\n", result.correct_answer);
+			}
+			break;
+		
+		case ReadDigitIncorrect:
+			printf("\n\nThe next digit is %c, not %c.\n", result.correct_answer,
+			       result.given_answer);
+			print_score(result.pos, taken);
+			break;
+	}
+}
+
+void print_victory(int num_correct, time_t start_time)
+{
+	time_t taken = time(NULL) - start_time;
+	
+	printf("Victory!\n\n");
+	print_score(num_correct, taken);
+}
+
+PromptContinueResult prompt_continue()
+{
+	printf("Press return key to retry.");
+	while (1) {
+		char c = getchar_blocking();
+			
+		if (c == ESCAPE_KEYCODE) {			
+			putchar('\n');
+			return PromptQuit;
+		} else if (is_return(c)) {
+			putchar('\n');
+			return PromptContinue;
+		}
+	}		
 }
 
 int main(void)
 {
 	clear_screen();
-	printf("Learn pi!\n\n");
+	print_welcome();
 	
-	int max_digits = strlen(pi_digits);
-	
-	while (1) {
-		printf("> 3.");
+	while (TRUE) {
+		print_prompt();
 		
-		int victory = 1;
+		BOOL victory = TRUE;
 		time_t start_time = 0;
 				
-		for (int pos = 0; pos < max_digits; pos++) {
-			char digit = pi_digits[pos];
-			char answer = getchar_blocking();
+		for (int pos = 0; pos < PI_DIGIT_COUNT; pos++) {
+			ReadDigitResult result = read_digit(pos);
 			
-			if (answer == 27) {
-				putchar('\n');
-				return 0;
-			}
-
-			if (is_return(answer)) {
-				if (pos > 0) {
-					time_t taken = time(NULL) - start_time;
-					if (taken == 0) {
-						printf("\n\nThe next digit is %c.\n"
-						       "You got %i %s right.\n\n",
-					           digit, pos, pos == 1 ? "digit" : "digits");
-					} else {
-						float dps = (float)pos / taken;		
-						printf("\n\nThe next digit is %c.\n"
-						       "You got %i %s right in %lus (%.2f p/s).\n\n",
-					           digit, pos, pos == 1 ? "digit" : "digits",
-							   (unsigned long)taken, dps);
-					}					
-				} else {
-					printf("\nThe first digit is %c.\n\n", digit);
-				}
-				
-				victory = 0;
-				break;
-			}
-			
-			if (answer < '0' || answer > '9')
-				continue;
-
 			if (pos == 0)
 				start_time = time(NULL);
 			
-			putchar(answer);
+			print_digit_result(result, start_time);
 			
-			if (answer != digit) {
-				time_t taken = time(NULL) - start_time;
-				if (taken == 0) {
-					printf("\n\nThe next digit is not %c but %c.\n"
-					       "You got %i %s right.\n\n",
-					       answer, digit, pos, pos == 1 ? "digit" : "digits");
-				} else {
-					float dps = (float)pos / taken;
-					printf("\n\nThe next digit is not %c but %c.\n"
-					       "You got %i %s right in %lus (%.2f p/s).\n\n",
-					       answer, digit, pos, pos == 1 ? "digit" : "digits",
-						   (unsigned long)taken, dps);
-				}
-				 
-				victory = 0;
-				break;
+			BOOL exit_loop = FALSE;
+			switch (result.type) {
+				case ReadDigitIncorrect:				
+				case ReadDigitCancel:
+					victory = FALSE;
+					exit_loop = TRUE;
+					break;
+
+				case ReadDigitQuit:
+					return 0;
 			}
+			
+			if (exit_loop)
+				break;
 		}
 		
-		if (victory) {
-			time_t taken = time(NULL) - start_time;
-			float dps = (float)max_digits / taken;		
-			printf("\n\nWin! You got 100 digits right in %lus (%.2f p/s).\n\n",
-			       (unsigned long)taken, dps);
-		}
+		if (victory)
+			print_victory(PI_DIGIT_COUNT, start_time);
 		
-		printf("Press return key to retry.");
-		while (1) {
-			char c = getchar_blocking();
-			if (c == 27) {
-				printf("\n");
-				return 0;
-			} else if (is_return(c)) {
-				break;
-			}
-		}	
-			
-		printf("\n");
+		PromptContinueResult cont = prompt_continue();
+		if (cont == PromptQuit)
+			return 0;
+		
 		clear_screen();
 	}
 	

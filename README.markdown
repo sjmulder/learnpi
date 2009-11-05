@@ -2,12 +2,12 @@ Here is a pi game:
 
     Learn pi!
     
-    > 3.141592653589793238466
+    > 3.1415926535897932384625
     
-    The next digit is not 6 but 2.
-    You got 20 digits right in 3s (6.67 p/s).
+    The next digit is 6, not 5.
+    You got 21 digits right in 4s (5.25 p/s).
     
-    Press return key to retry.
+    Your score: 262
 
 It runs on Mac and Linux:
 
