@@ -58,9 +58,7 @@ int main(void)
 			
 			putchar(answer);
 			
-			if (answer == '\r') {
-				break;
-			} else if (answer != digit) {
+			if (answer != digit) {
 				printf("\nSorry, next digit is %c, not %c. You got %i %s right.\n\n",
 				       digit, answer, pos, pos == 1 ? "digit" : "digits");
 				
