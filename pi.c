@@ -53,10 +53,10 @@ const char *PI_DIGITS =
 "14159265358979323846264338327950288419716939937510"
 "58209749445923078164062862089986280348253421170679";
 
-const int PI_DIGIT_COUNT = (100);
-const int ESCAPE_KEYCODE = (27);
-const float POINTS_PER_DIGITS = 10.0f; // points for every digit
-const float POINTS_PER_DPS = 10.0f;    // for every digit per second
+const int PI_DIGIT_COUNT = 100;
+const int ESCAPE_KEYCODE = 27;
+const float POINTS_PER_DIGITS = 10.0f;        // points for every digit
+const float POINTS_PER_DPS_PER_DIGIT = 4.0f;  // for every digit per second times per digit
 
 #ifndef TRUE
 const int TRUE = 1;
@@ -141,7 +141,7 @@ ReadDigitResult read_digit(int pos)
 int calculate_score(int num_correct, time_t time_taken)
 {
 	float dps = (float)num_correct / fmax(1, (float)time_taken);
-	float fscore = num_correct * POINTS_PER_DIGITS + dps * POINTS_PER_DPS;
+	float fscore = num_correct * POINTS_PER_DIGITS + dps * num_correct * POINTS_PER_DPS_PER_DIGIT;
 	
 	return (int)fscore;
 }
