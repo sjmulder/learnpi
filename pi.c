@@ -5,6 +5,7 @@
    work for any purpose, without any conditions, unless such conditions are
    required by law. */
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -58,22 +59,12 @@ const int ESCAPE_KEYCODE = 27;
 const float POINTS_PER_DIGITS = 10.0f;        // points for every digit
 const float POINTS_PER_DPS_PER_DIGIT = 4.0f;  // for every digit per second times per digit
 
-#ifndef TRUE
-const int TRUE = 1;
-#endif
-#ifndef FALSE
-const int FALSE = 0;
-#endif
-#ifndef BOOL
-typedef int BOOL;
-#endif
-
-BOOL is_return(char c)
+bool is_return(char c)
 {
 	return c == '\n' || c == '\r';
 }
 
-BOOL is_digit(char c)
+bool is_digit(char c)
 {
 	return '0' <= c && c <= '9';
 }
@@ -132,7 +123,7 @@ ReadDigitResult read_digit(int pos)
 
 	putchar(result.given_answer);
 	
-	BOOL correct = result.correct_answer == result.given_answer;
+	bool correct = result.correct_answer == result.given_answer;
 	result.type = correct ? ReadDigitCorrect : ReadDigitIncorrect;
 	
 	return result;
@@ -221,10 +212,10 @@ int main(void)
 	clear_screen();
 	print_welcome();
 	
-	while (TRUE) {
+	while (true) {
 		print_prompt();
 		
-		BOOL victory = TRUE;
+		bool victory = true;
 		time_t start_time = 0;
 				
 		for (int pos = 0; pos < PI_DIGIT_COUNT; pos++) {
@@ -235,12 +226,12 @@ int main(void)
 			
 			print_digit_result(result, start_time);
 			
-			BOOL exit_loop = FALSE;
+			bool exit_loop = false;
 			switch (result.type) {
 				case ReadDigitIncorrect:				
 				case ReadDigitCancel:
-					victory = FALSE;
-					exit_loop = TRUE;
+					victory = false;
+					exit_loop = true;
 					break;
 
 				case ReadDigitQuit:
